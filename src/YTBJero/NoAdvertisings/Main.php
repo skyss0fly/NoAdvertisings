@@ -68,23 +68,13 @@ class Main extends PluginBase implements Listener{
         $player = $event->getPlayer();
         $name = $player->getName();
         $msg = $event->getMessage();
-        $domain = $this->getDomain();
-        $allowed = $this->getAllowedDomain();
-        foreach($allowed as $a){
-            if(stripos($msg, $a) !== false){
-                return;
-            }
-        }
-        foreach($domain as $d){
-            if((stripos($msg, $d) !== false) || filter_var($msg, FILTER_VALIDATE_IP) || (preg_match("([a-zA-Z0-9]+ *+[(\.|,)]+ *+[^\s]{2,}|\.[a-zA-Z0-9]+\.[^\s]{2,})", $msg))){
-                    $event->cancel();
-                    $player->sendMessage($this->getConfig()->get("Message"));
-                    $time = date("D d/m/Y H:i:s(A)");
-                    $this->history->set($time . ' : ' . $name, $msg);
-                    $this->history->save();
-                       
-            }
-        }
+	    $banned = $this->getConfig()->get("Banned");
+	        $msgtosend = $this->getConfig()->get("Message");
+
+	    if ($msg->str_contains($banned)) {
+$msg->setCancelled();
+$player->sendMessage($msgtosend);
+	    }   
     }
 
     /**
@@ -99,13 +89,15 @@ class Main extends PluginBase implements Listener{
 			$newText = $event->getNewText();
             $lines = $event->getSign()->getText()->getLines();
             foreach($lines as $line){
-                foreach($this->getAllowedDomain() as $a){
+                
                     if(stripos($line, $a) !== false){
                         return;
                     }
                 }
-                foreach($this->getDomain() as $d){
-                    if(stripos($line, $d) !== false || filter_var($line, FILTER_VALIDATE_IP)) {
+                $banned = $this->getConfig()->get("Banned");
+	        $msgtosend = $this->getConfig()->get("Message");
+
+	    if (line->str_contains($banned)) {
                         for ($i = 0; $i < SignText::LINE_COUNT; $i++) {
                             $player->sendMessage($this->getConfig()->get("Message"));
                             $shopSignText = new SignText([
@@ -127,29 +119,9 @@ class Main extends PluginBase implements Listener{
     /**
      * @param  PlayerCommandPreprocessEvent $event
      */
-    public function onCmd(PlayerCommandPreprocessEvent $event){
-        $msg = explode(' ', $event->getMessage());
-        $cmd = array_shift($msg);
-        $player = $event->getPlayer();
-        $m = implode(' ', $msg);
-        $name = $player->getName();
-        foreach ($this->getAllowedDomain() as $a) {
-            if (stripos($m, $a) !== false) {
-                return;
-            }
-        }
-        if(in_array($cmd, $this->getBlockedCmd())) {
-            foreach ($this->getDomain() as $d) {
-                if (stripos($m, $d) !== false  || filter_var($m, FILTER_VALIDATE_IP)) {
-                    $event->cancel();
-                    $player->sendMessage($this->getConfig()->get("Message"));
-                    $time = date("D d/m/Y H:i:s(A)");
-                    $this->history->set($time . ' : ' . $name, $m);
-                    $this->history->save();
-                }
-            }
-        }
-    }
+   
+        
+    
 
     /**
      * @param  CommandSender $sender 
@@ -198,7 +170,7 @@ class Main extends PluginBase implements Listener{
      */
     public function getDomain()
     {
-    $domain = (array) $this->getConfig()->get("domain");
+    $domain = (array) $this->getConfig()->get("banned");
     return $domain;
     }
 
@@ -207,7 +179,7 @@ class Main extends PluginBase implements Listener{
      */
     public function getAllowedDomain()
     {
-        $allowed = (array) $this->getConfig()->get("allowed.domain");
+        $allowed = (array) $this->getConfig()->get("allowed");
         return $allowed;
     }
 
@@ -219,7 +191,7 @@ class Main extends PluginBase implements Listener{
         return false;
     }
     $domain[] = $name;
-    $this->getConfig()->set("domain", $domain);
+    $this->getConfig()->set("banned", $domain);
     $this->getConfig()->save();
     $m = $this->getConfig()->get("Domain-added-successfully");
     $m = str_replace(['{domain}'], [$name], $m);
@@ -235,7 +207,7 @@ class Main extends PluginBase implements Listener{
             return false;
         }
         unset($domain[$key]);
-        $this->getConfig()->set("domain", array_values($domain));
+        $this->getConfig()->set("banned", array_values($domain));
         $this->getConfig()->save();
         $m = $this->getConfig()->get("Domain-removed-successfully");
         $m = str_replace(['{domain}'], [$name], $m);
