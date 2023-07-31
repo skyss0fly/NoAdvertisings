@@ -4,7 +4,7 @@ config-version: 0.0.4
 # Set it to true if you want it to automatically notify the console when a new update is available.
 Update-notice: true
 # Message when players advertise
-Message: "Please don't ads."
+Message: "Please don't advertise this thanks."
 # Messages when adding domain
 Domain-exists: "That domain already exist!."
 Domain-added-successfully: "Successfully added {domain} into config."
@@ -12,15 +12,12 @@ Domain-added-successfully: "Successfully added {domain} into config."
 Domain-not-exists: "That domain not exist!."
 Domain-removed-successfully: "Successfully removed {domain} from config."
 # The domains that allowed to use
-allowed.domain:
-  - "youripserver.net"
-  - "yourip.net"
-# Blocked domain names
-domain:
-  - ".net"
-  - ".com"
-  - ".tk"
-  - ".ddns.net"
+allowed:
+  - "funworld.world"
+
+banned:
+- "chooseips"
+
 # Lines that will change if player advertise on sign
 lines:
   - '============='
